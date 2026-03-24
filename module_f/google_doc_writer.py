@@ -18,12 +18,21 @@ logger = logging.getLogger(__name__)
 SCOPES = ["https://www.googleapis.com/auth/documents"]
 
 def _get_credentials():
-    service_account_file = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON")
-    if not service_account_file or not os.path.exists(service_account_file):
-        raise ValueError(f"Service account file not found: {service_account_file}")
+    service_account_info = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON")
+    if not service_account_info:
+        raise ValueError("GOOGLE_SERVICE_ACCOUNT_JSON is not set in environment variables.")
+    
+    # Check if the variable contains raw JSON (starts with {) or is a file path
+    if service_account_info.strip().startswith("{"):
+        import json
+        info = json.loads(service_account_info)
+        return service_account.Credentials.from_service_account_info(info, scopes=SCOPES)
+    
+    if not os.path.exists(service_account_info):
+        raise ValueError(f"Service account file not found at path: {service_account_info}")
     
     return service_account.Credentials.from_service_account_file(
-        service_account_file, scopes=SCOPES
+        service_account_info, scopes=SCOPES
     )
 
 def append_to_doc(pulse: PulsePayload, fee_explainer: FeeExplainerResult = None) -> bool:
