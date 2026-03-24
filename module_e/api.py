@@ -60,7 +60,7 @@ class EmailRequest(BaseModel):
 
 # --- Endpoints ---
 
-@app.post("/api/generate")
+@app.post("/generate")
 def generate_report(request: GenerateRequest):
     """
     Trigger the full Module A pipeline.
@@ -84,7 +84,7 @@ def generate_report(request: GenerateRequest):
         raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
 
 
-@app.get("/api/pulse/{pulse_id}")
+@app.get("/pulse/{pulse_id}")
 def get_pulse(pulse_id: str):
     """Get a pulse payload by its ID."""
     record = _pulse_store.get(pulse_id)
@@ -93,7 +93,7 @@ def get_pulse(pulse_id: str):
     return {"pulse_id": pulse_id, "pulse": record["gate"].pulse.model_dump()}
 
 
-@app.post("/api/export/pdf")
+@app.post("/export/pdf")
 def export_pdf_endpoint(request: ExportPDFRequest):
     """
     Export pulse as PDF -- implicitly approves the pulse.
@@ -120,7 +120,7 @@ def export_pdf_endpoint(request: ExportPDFRequest):
     return {"success": True, "pdf_path": result["pdf_path"]}
 
 
-@app.get("/api/download/pdf/{pulse_id}")
+@app.get("/download/pdf/{pulse_id}")
 def download_pdf(pulse_id: str):
     """Download the generated PDF file directly."""
     record = _pulse_store.get(pulse_id)
@@ -141,7 +141,7 @@ def download_pdf(pulse_id: str):
     )
 
 
-@app.post("/api/export/email")
+@app.post("/export/email")
 def send_email_endpoint(request: EmailRequest):
     """
     Send pulse via email -- implicitly approves the pulse.
@@ -191,7 +191,7 @@ def send_email_endpoint(request: EmailRequest):
 
     return {"success": True, "message": f"Email sent to {len(request.recipients)} recipients"}
 
-@app.post("/api/fee-explainer/scrape")
+@app.post("/fee-explainer/scrape")
 def force_re_scrape_fee_data():
     """Manual trigger to force a re-scrape of the Fee Explainer data."""
     try:
@@ -201,13 +201,13 @@ def force_re_scrape_fee_data():
         raise HTTPException(status_code=500, detail=f"Scrape failed: {str(e)}")
 
 
-@app.get("/api/history")
+@app.get("/history")
 def list_history():
     """Get the last 3 reports (metadata only)."""
     return get_history()
 
 
-@app.get("/api/history/{report_id}")
+@app.get("/history/{report_id}")
 def get_history_report(report_id: int):
     """Get a full report from history by ID and rehydrate the store."""
     pulse = get_report(report_id)
