@@ -1,14 +1,16 @@
 # Environment
 .env
 __pycache__/
-*.pyc
-*.pyo
-
-# Database
-reports.db
-
-# Exports
-exports/
+*.db
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!config.json
+!mockData.json
+!google-service-account.json-example
+# ... actually I'll just be specific
+docs/google-service-account.json
 
 # IDE
 .vscode/

@@ -27,3 +27,9 @@ uvicorn>=0.27
 pytest>=8.0
 pytest-asyncio>=0.23
 langdetect>=1.0.9
+# Module F — Fee Explainer
+playwright>=1.40
+google-api-python-client>=2.100
+google-auth>=2.20
+google-auth-oauthlib>=1.1
+google-auth-httplib2>=0.1
