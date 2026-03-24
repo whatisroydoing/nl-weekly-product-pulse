@@ -1,0 +1,27 @@
+# Docker Compose for IndMoney Weekly Product Pulse
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: pulse-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./reports.db:/app/reports.db
+      - ./data:/app/data
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./module_e/frontend
+      dockerfile: Dockerfile.frontend
+    container_name: pulse-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

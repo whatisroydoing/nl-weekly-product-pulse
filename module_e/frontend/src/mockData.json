@@ -1,0 +1,124 @@
+{
+  "pulse": {
+    "metadata": {
+      "app_name": "IndMoney",
+      "source": "Google Play Store",
+      "review_count": 200,
+      "generated_at": "11 Mar 2026 16:30",
+      "id": "mock-pulse-123"
+    },
+    "themes": [
+      {
+        "label": "App Crashes on Startup",
+        "description": "Users report the app crashing immediately upon opening after the recent update.",
+        "review_count": 85,
+        "is_top_3": true
+      },
+      {
+        "label": "Slow Portfolio Sync",
+        "description": "Mutual fund and stock portfolios take too long to refresh or fail to sync.",
+        "review_count": 42,
+        "is_top_3": true
+      },
+      {
+        "label": "Confusing UI for SIPs",
+        "description": "The new interface for setting up systematic investment plans is unintuitive.",
+        "review_count": 28,
+        "is_top_3": true
+      },
+      {
+        "label": "Customer Support Delays",
+        "description": "Long wait times connecting to agent.",
+        "review_count": 15,
+        "is_top_3": false
+      }
+    ],
+    "quotes": [
+      {
+        "text": "Ever since the new update dropped yesterday, I can't even open the app. It just shows the logo and closes immediately.",
+        "theme_label": "App Crashes on Startup",
+        "rating": 1
+      },
+      {
+        "text": "Using an S23 Ultra and the app crashes every single time I try to log in with fingerprint.",
+        "theme_label": "App Crashes on Startup",
+        "rating": 1
+      },
+      {
+        "text": "Please fix the crashing bug! I need to check my investments but the app just white screens.",
+        "theme_label": "App Crashes on Startup",
+        "rating": 2
+      },
+      {
+        "text": "My CDSL mutual fund data hasn't updated in 3 days. Hit refresh 10 times and still showing old NAVs.",
+        "theme_label": "Slow Portfolio Sync",
+        "rating": 2
+      },
+      {
+        "text": "Syncing is completely broken right now. It just spins forever when I click on the US Stocks tab.",
+        "theme_label": "Slow Portfolio Sync",
+        "rating": 1
+      },
+      {
+        "text": "Portfolio takes a solid 2 minutes to load on 5G. This is unacceptable for a finance app.",
+        "theme_label": "Slow Portfolio Sync",
+        "rating": 3
+      },
+      {
+        "text": "Why did you guys change the SIP screen? I can't find where to pause my HDFC SIP anymore.",
+        "theme_label": "Confusing UI for SIPs",
+        "rating": 2
+      },
+      {
+        "text": "The old design was much better. Now there are too many menus just to start a simple monthly investment.",
+        "theme_label": "Confusing UI for SIPs",
+        "rating": 3
+      },
+      {
+        "text": "I ended up creating two SIPs by mistake because the confirmation button wasn't clear.",
+        "theme_label": "Confusing UI for SIPs",
+        "rating": 1
+      }
+    ],
+    "summary_note": "Over the past analysis window, the dominant issue raised by users is consistent app crashing on startup following the most recent update, heavily affecting users across multiple Android device models including flagships. Furthermore, portfolio syncing is severely degraded, with users reporting long load times or complete failures when attempting to refresh mutual fund and US stock data. Finally, the recent redesign of the SIP setup flow has introduced significant friction, leading to user confusion and accidental duplicate investments due to an unintuitive interface.",
+    "action_items": [
+      {
+        "id": 1,
+        "title": "Immediate Hotfix for Startup Crashes",
+        "description": "Investigate and patch the null pointer exception occurring during the biometric login sequence introduced in v4.5.2.",
+        "linked_theme": "App Crashes on Startup"
+      },
+      {
+        "id": 2,
+        "title": "Optimize Portfolio Sync Endpoint",
+        "description": "Implement aggressive caching or background syncing for the CDSL and US partner broker endpoints to reduce the perceived load times from 2+ minutes to under 5 seconds.",
+        "linked_theme": "Slow Portfolio Sync"
+      },
+      {
+        "id": 3,
+        "title": "Revert or Revise SIP UI Flow",
+        "description": "Conduct rapid A/B testing on the SIP confirmation screen to address the accidental duplication issue, and add a clearly visible \"Manage/Pause SIPs\" button to the home screen.",
+        "linked_theme": "Confusing UI for SIPs"
+      }
+    ],
+    "footer": "Report generated on 11 Mar 2026 16:30 for playstore"
+  },
+  "history": [
+    {
+      "id": 1,
+      "report_name": "IndMoney Pulse — 04 Mar 2026",
+      "source": "Google Play Store",
+      "review_count": 400,
+      "generated_at": "04 Mar 2026 09:15",
+      "pdf_path": null
+    },
+    {
+      "id": 2,
+      "report_name": "IndMoney Pulse — 25 Feb 2026",
+      "source": "Google Play Store",
+      "review_count": 200,
+      "generated_at": "25 Feb 2026 14:20",
+      "pdf_path": "/exports/pulse_25feb.pdf"
+    }
+  ]
+}

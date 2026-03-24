@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+@theme {
+  --color-indmoney-50: #f0f9ff;
+  --color-indmoney-100: #e0f2fe;
+  --color-indmoney-200: #bae6fd;
+  --color-indmoney-300: #7dd3fc;
+  --color-indmoney-400: #38bdf8;
+  --color-indmoney-500: #0ea5e9;
+  --color-indmoney-600: #0284c7;
+  --color-indmoney-700: #0369a1;
+  --color-indmoney-800: #075985;
+  --color-indmoney-900: #0c4a6e;
+}
+
+/* ═══════════════════════════════════════════
+   DESIGN SYSTEM — INDMoney Weekly Pulse
+   ═══════════════════════════════════════════ */
+
+:root {
+  /* Layout */
+  --section-radius: 16px;
+  --section-padding: 24px;
+  --section-gap: 32px;
+
+  /* Colors */
+  --section-bg: #ffffff;
+  --section-border: #e2e8f0;
+  --page-bg: #f8fafc;
+  --accent: #0284c7;
+  --accent-light: #f0f9ff;
+  --accent-ring: #bae6fd;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --top3-accent: #0284c7;
+  --top3-bg: #f0f9ff;
+
+  /* Typography */
+  --heading-size: 1.125rem;
+  --heading-weight: 700;
+  --body-size: 0.875rem;
+  --body-weight: 400;
+  --caption-size: 0.75rem;
+}
+
+@layer base {
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--page-bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ─── Shared section card ─── */
+.section-card {
+  background: var(--section-bg);
+  border: 1px solid var(--section-border);
+  border-radius: var(--section-radius);
+  padding: var(--section-padding);
+}
+
+.section-heading {
+  font-size: var(--heading-size);
+  font-weight: var(--heading-weight);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* ─── Sentiment bar ─── */
+@keyframes bar-fill {
+  from { width: 0%; }
+}
+
+.sentiment-bar {
+  animation: bar-fill 0.8s ease-out forwards;
+}
+
+/* ─── Fade in ─── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up {
+  animation: fade-up 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+.fade-up-1 { animation-delay: 0.05s; }
+.fade-up-2 { animation-delay: 0.1s; }
+.fade-up-3 { animation-delay: 0.15s; }
+.fade-up-4 { animation-delay: 0.2s; }
+.fade-up-5 { animation-delay: 0.25s; }
+.fade-up-6 { animation-delay: 0.3s; }
+
+/* ─── Theme card top-3 accent ─── */
+.theme-card-top3 {
+  border-left: 4px solid var(--top3-accent);
+  background: var(--top3-bg);
+}
+
+/* ─── Deep Dive tabs ─── */
+.tab-btn {
+  padding: 8px 16px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: var(--text-secondary);
+}
+
+.tab-btn-active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ─── Quote card ─── */
+.quote-card {
+  background: var(--section-bg);
+  border: 1px solid var(--section-border);
+  border-radius: 12px;
+  padding: 16px 20px;
+}

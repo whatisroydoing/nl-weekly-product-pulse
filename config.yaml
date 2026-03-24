@@ -1,0 +1,61 @@
+# IndMoney Weekly Product Pulse — Configuration
+
+app:
+  name: "IndMoney"
+  app_id: "in.indwealth"                   # Google Play Store app ID
+  source: "Google Play Store"
+
+ingestion:
+  allowed_review_counts: [200, 300, 400]
+  min_words_per_review: 5                   # Skip short reviews with < 5 words
+  # max_char_per_review limit removed to allow full context
+
+llm:
+  clustering:
+    provider: "openai"
+    model: "gpt-4o-mini"
+    temperature: 0.2
+    batch_size: 400
+    max_themes: 5
+    top_themes: 3
+    quotes_per_theme: 3
+  pulse:
+    provider: "openai"
+    model: "gpt-4o-mini"
+    temperature: 0.3
+    max_summary_words: 250
+    max_action_words: 400
+    num_action_items: 3
+
+pii:
+  masking_placeholder: "[REDACTED]"
+  patterns:
+    - "email"
+    - "phone"
+    - "account_number"
+    - "name"
+
+output:
+  pdf:
+    style: "standard"                       # Clean, easy-to-read
+  email:
+    provider: "gmail"                       # "gmail" or "smtp"
+    max_recipients: 5
+
+history:
+  max_reports: 3
+  db_path: "reports.db"
+  name_format: "IndMoney Pulse - {date}"    # DD MMM YYYY
+
+fee_explainer:
+  scenario: "Exit Load"
+  scrape_schedule: "2nd_monday"
+  cache_path: "data/fee_cache.json"
+  funds:
+    - name: "ICICI Prudential Value Fund"
+      url: "https://www.indmoney.com/mutual-funds/icici-prudential-value-fund-direct-plan-growth-3625"
+    - name: "ICICI Prudential Corporate Bond Fund"
+      url: "https://www.indmoney.com/mutual-funds/icici-prudential-corporate-bond-fund-direct-plan-growth-234"
+
+google_doc:
+  doc_id: ""  # Set via env var GOOGLE_DOC_ID

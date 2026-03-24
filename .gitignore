@@ -1,0 +1,36 @@
+# Environment
+.env
+__pycache__/
+*.pyc
+*.pyo
+
+# Database
+reports.db
+
+# Exports
+exports/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Virtual environment
+venv/
+.venv/
+
+# Node (frontend)
+module_e/frontend/node_modules/
+module_e/frontend/.next/
+
+# Testing & Cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local Data
+data/
+docs/session_handoff.md
