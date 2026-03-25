@@ -4,7 +4,7 @@ import {
   MessageSquareQuote, Zap, Sparkles, ChevronLeft
 } from 'lucide-react';
 
-const API_BASE = '/api';
+const API_BASE = import.meta.env.VITE_API_URL;
 
 /* ─── Helpers ─── */
 
@@ -92,9 +92,8 @@ export default function PulseReview({ pulse, pulseId, onBack }) {
     <div className="max-w-4xl mx-auto pb-32">
       {/* Toast */}
       {showToast && (
-        <div className={`fixed top-4 right-4 px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 z-50 ${
-          toastType === 'error' ? 'bg-red-600 text-white' : 'bg-slate-800 text-white'
-        }`}>
+        <div className={`fixed top-4 right-4 px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 z-50 ${toastType === 'error' ? 'bg-red-600 text-white' : 'bg-slate-800 text-white'
+          }`}>
           <CheckCircle className={`w-5 h-5 ${toastType === 'error' ? 'text-red-200' : 'text-emerald-400'}`} />
           <span className="text-sm font-medium">{toastMessage}</span>
         </div>
@@ -121,9 +120,8 @@ export default function PulseReview({ pulse, pulseId, onBack }) {
               return (
                 <div
                   key={i}
-                  className={`section-card fade-up fade-up-${Math.min(i + 1, 6)} ${
-                    theme.is_top_3 ? 'theme-card-top3' : ''
-                  }`}
+                  className={`section-card fade-up fade-up-${Math.min(i + 1, 6)} ${theme.is_top_3 ? 'theme-card-top3' : ''
+                    }`}
                 >
                   <div className="flex justify-between items-start mb-3">
                     <h3 className="font-semibold text-[var(--text-primary)] text-sm">{theme.label}</h3>
@@ -190,9 +188,8 @@ export default function PulseReview({ pulse, pulseId, onBack }) {
                     <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-slate-100 text-[var(--text-muted)] rounded">
                       {quote.theme_label}
                     </span>
-                    <span className={`text-[10px] font-bold px-2 py-1 rounded ${
-                      quote.rating >= 4 ? 'bg-emerald-50 text-emerald-600' : quote.rating <= 2 ? 'bg-red-50 text-red-600' : 'bg-slate-50 text-[var(--text-muted)]'
-                    }`}>
+                    <span className={`text-[10px] font-bold px-2 py-1 rounded ${quote.rating >= 4 ? 'bg-emerald-50 text-emerald-600' : quote.rating <= 2 ? 'bg-red-50 text-red-600' : 'bg-slate-50 text-[var(--text-muted)]'
+                      }`}>
                       {quote.rating}★
                     </span>
                   </div>
