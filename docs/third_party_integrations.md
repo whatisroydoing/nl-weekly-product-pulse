@@ -16,9 +16,9 @@ The IndMoney Weekly Product Pulse relies on a few external tools and services to
    - **What it does:** Generates the downloadable PDF version of the product pulse.
    - **Why we use it:** It gives us fine-grained control over exactly how the PDF looks, ensuring a professional layout.
 
-4. **Gmail / SMTP (Email Output):**
+4. **Gmail API (Primary Email Output):**
    - **What it does:** Sends the final product pulse report to team members via email. The email body also includes a Fee Explainer section with exit load bullets when available.
-   - **Why we use it:** Allows the user to easily distribute insights right from the application. It is set up to use a simple SMTP or Gmail App Password setup.
+   - **Why we use it:** The Gmail API provides more reliable delivery in cloud environments (like Railway) where traditional SMTP ports (25, 465, 587) are often restricted. It supports **OAuth2 refresh tokens** for personal accounts and **Service Account JSON** for enterprise/workspace setups.
 
 5. **Playwright (Fee Scraping):**
    - **What it does:** Uses a headless Chromium browser to scrape exit load data from IndMoney mutual fund pages.

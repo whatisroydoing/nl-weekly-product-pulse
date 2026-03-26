@@ -34,6 +34,7 @@ AI workflow that ingests Google Play reviews, produces a **Weekly Product Pulse*
 |---|---|---|
 | **LLM** | OpenAI `gpt-4o-mini` | **Why:** Best balance of reasoning speed and cost. `mini` excels at structured JSON extraction (clustering) and concise summarization without the latency/cost of larger models. |
 | **Logic/API** | FastAPI (Python) | **Why:** Async-first, high performance, and rapid developer experience. Native Pydantic v2 support ensures strict schema validation for the `PulsePayload`. |
+| **Email/Auth** | Google API / OAuth2 | **Why:** Uses `google-api-python-client` and `google-auth` for secure, cloud-friendly email delivery (Gmail API). Supports both personal OAuth2 and Workspace Service Accounts. |
 | **Frontend** | React + Vite + Tailwind | **Why:** Modern, ultra-fast build toolchain. Tailwind allows for rapid design iteration of the complex 6-section Pulse Review screen without custom CSS overhead. |
 | **PDF Engine** | ReportLab | **Why:** Low-level control over PDF layout. Unlike template-based generators, it allows for dynamic multi-page report generation with branded styling in pure Python. |
 | **History Layer**| SQLite | **Why:** Zero-config, file-based database. Perfect for a local-first prototype to track the history of the last 3 reports without needing a separate DB server. |
@@ -102,7 +103,8 @@ AI workflow that ingests Google Play reviews, produces a **Weekly Product Pulse*
 
 ### B2 · Email Send (`module_b/email_send.py`)
 - Trigger: user clicks "Send on email" + up to 5 addresses.
-- SMTP via Gmail or configurable SMTP credentials.
+- **Gmail API (Primary):** Integrated via `googleapiclient`. Supports `oauth2` (refresh token) and `service_account` (JSON key) authentication modes.
+- **SMTP (Fallback):** Maintained for local testing or non-Gmail SMTP providers.
 - **Fee Explainer section** is appended to the email body (below action items, above footer) when available.
 
 ---
@@ -120,9 +122,14 @@ No output action fires without explicit user click.
 
 ## Module D — Report History (`module_d/history.py`)
 
+### D1 · Report Storage
 - Storage: SQLite (`reports.db`)
 - Retention: last 3 reports
 - Auto-named: `IndMoney Pulse — DD MMM YYYY`
+
+### D2 · State Rehydration
+- **Mechanism:** The backend implements a `_rehydrate_pulse` flow that restores `ApprovalGate` objects into memory from SQLite by matching `pulse_id` (generated at timestamp).
+- **Benefit:** Allows users to view historical reports, download their PDFs, or re-send them via email even after a server restart.
 
 ---
 
@@ -180,3 +187,9 @@ No output action fires without explicit user click.
 - **SQLite vs Vector JSON:** SQLite was chosen for history because it allows for easy expansion (e.g., searching by date or review count) while maintaining the single-file portability desired for the prototype.
 - **Fee Explainer — Template vs LLM:** Template-based generation was chosen for the fee bullets because the output is structured, factual, and short. This guarantees deterministic, compliant output without hallucination risk and at zero API cost.
 - **Playwright for Scraping:** IndMoney pages are JS-rendered and return HTTP 403 for direct requests, requiring a headless browser. Scraping is scheduled monthly (2nd Monday) to minimize resource usage.
+
+## Resilience & Error Handling
+
+- **PDF XML Sanitization:** To prevent ReportLab generation failures with high-volume reviews (300-400), all text content (summary, quotes, action items) is processed through `xml.sax.saxutils.escape` before rendering.
+- **Token Resilience:** The OpenAI pipeline includes exponential backoff retry logic to handle rate limits or transient API failures gracefully.
+- **Graceful Rehydration:** Server reloads do not wipe out active pulses; the API re-syncs state from the database as needed.

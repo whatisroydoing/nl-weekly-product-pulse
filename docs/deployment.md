@@ -17,10 +17,11 @@ We have containerized the entire stack using Docker to ensure consistency, handl
 
 - [x] Create `Dockerfile` for the FastAPI backend (Python/Uvicorn).
 - [x] Create `Dockerfile` (multi-stage) for the React/Vite frontend using Nginx.
-- [x] Set up `docker-compose.yml` to orchestrate both services.
-- [x] Configure persistent volume mapping for `reports.db` in `docker-compose.yml`.
+- [x] Set up `docker-compose.yml` for local orchestration.
+- [x] Configure persistent volume mapping for `reports.db`.
 - [x] Include Playwright Chromium binaries in the Docker image.
 - [x] Securely manage environment variables (`.env`) for API keys.
+- [x] Implement Gmail API OAuth2 flow for restricted cloud environments.
 
 ## 🚀 Final Deployment Steps (Railway)
 

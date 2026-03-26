@@ -120,6 +120,21 @@
 | 7 | `test_export_pdf_pulse_not_found` | Unknown pulse → HTTP 404 |
 | 8 | `test_history_empty` | Empty DB returns `[]` |
 | 9 | `test_history_returns_saved_report` | History returns reports after export |
+| 10 | `test_api_auto_rehydrates_from_db` | Pulse automagically restores from DB if memory is cleared |
+
+---
+
+## Module F — Fee Explainer (`test_fee_explainer.py`)
+
+| # | Test | What it verifies |
+|---|---|---|
+| 1 | `test_template_output_compliance` | Exactly 5 bullets, 2 links, and valid date returned |
+| 2 | `test_neutral_tone_check` | No recommendation/advice words in the bullets |
+| 3 | `test_fee_explainer_schema` | Pydantic model serializes/deserializes correctly |
+| 4 | `test_is_second_monday` | Correct logic for monthly scraping schedule |
+| 5 | `test_should_rescrape_no_cache` | Scraper triggers if pulse cache is missing |
+| 6 | `test_should_not_rescrape_if_not_mon` | Scraper skips if it's not the 2nd Monday |
+| 7 | `test_google_doc_append` | Structured pulse correctly sends to Google Docs API |
 
 ---
 
@@ -145,6 +160,7 @@
 | C — Gate | `test_gate.py` | 5 |
 | C+B — Gate Actions | `test_mcp_actions.py` | 5 |
 | D — History | `test_history.py` | 9 |
-| E — API | `test_api.py` | 9 |
+| E — API + Rehydrate | `test_api.py`, `test_api_rehydration.py` | 10 |
+| F — Fee Explainer | `test_fee_explainer.py` | 7 |
 | E2E Integration | `test_e2e_pipeline.py` | 3 |
-| **Total** | | **59** |
+| **Total** | | **67** |

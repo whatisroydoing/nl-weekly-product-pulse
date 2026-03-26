@@ -32,18 +32,17 @@ This document tracks the implemented details of the IndMoney Weekly Product Puls
 ## Left / Pending (TO-DO) ⏳
 
 ### Phase 5: Fee Explainer (Module F) (Completed ✅)
-- [x] **F1 — Fee Scraper** (`module_f/fee_scraper.py`): Scrape exit load data from 2 IndMoney fund pages using `playwright` (headless Chromium). Cache to `data/fee_cache.json`, re-scrape on 2nd Monday of each month.
-- [x] **F2 — Fee Explainer** (`module_f/fee_explainer.py`): Template-based 5-bullet exit load explanation. Both funds cited in a single bullet. 2 source links. "Last checked: {date}". Neutral tone, no recommendations.
-- [x] **F3 — Google Doc Writer** (`module_f/google_doc_writer.py`): Overwrite Google Doc with structured pulse (date, summary, fee scenario, bullets, sources) via Docs API on each email send.
-- [x] **Schema Update** (`models/schemas.py`): Add `FeeExplainerResult` Pydantic model.
-- [x] **Email Integration** (`module_b/email_send.py`): Add fee explainer section to HTML email body (below action items, above footer). Email-only — not on UI or PDF.
-- [x] **API Wiring** (`module_e/api.py`): Wire Module F into `/api/export/email` endpoint. Add `POST /api/fee-explainer/scrape` endpoint for manual re-scrape.
-- [x] **Config & Dependencies**: Add `fee_explainer` section to `config.yaml`, Google Doc env vars to `.env.example`, `playwright` / `google-api-python-client` / `google-auth` to `requirements.txt`.
-- [x] **Tests** (`tests/test_fee_explainer.py`): Template output compliance, neutral tone check, schema validation, cache logic, Google Doc writer mock.
+- [x] **F1 — Fee Scraper** (`module_f/fee_scraper.py`): Scrape exit load data using `playwright`. Cache re-scrape on 2nd Monday.
+- [x] **F2 — Fee Explainer** (`module_f/fee_explainer.py`): Template-based 5-bullet exit load explanation.
+- [x] **F3 — Google Doc Writer** (`module_f/google_doc_writer.py`): Overwrite Google Doc with structured pulse.
+- [x] **Email Integration** (`module_b/email_send.py`): Add fee section to HTML email body.
+- [x] **Gmail API Migration**: Moved from SMTP to Gmail API (OAuth2) for production stability.
 
-### Prerequisites for Phase 5
-- [ ] **Playwright Setup**: `pip install playwright && playwright install chromium`
-- [ ] **Google Cloud Setup**: Create GCP project → enable Docs API → create service account → download JSON key → share target Google Doc with service account email.
+### Phase 6: Stability & Resilience (Completed ✅)
+- [x] **PDF Resilience**: Added XML sanitization to prevent generation failures on large review sets.
+- [x] **State Rehydration**: Enabled history-to-dashboard navigation by restoring in-memory state from SQLite.
+- [x] **Timezone Alignment**: Switched all timestamps to 24-hour IST format.
+- [x] **Deployment Parity**: Finalized Railway/Vercel split with CORS hardening.
 
 ### Ongoing ✅
 - [x] **Deployment Strategy:** Finalized Docker configuration and Railway plan. (See [Docs/deployment.md](file:///d:/Product%20Management/Upskilling/2026/Git%20Projects/nl-weekly-product-pulse/docs/deployment.md)).
