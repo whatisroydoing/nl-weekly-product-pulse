@@ -65,7 +65,7 @@ class TestGenerateEndpoint:
     def test_generate_returns_pulse(self, mock_pipeline):
         """POST /api/generate returns pulse_id and pulse payload."""
         mock_pipeline.return_value = _make_pulse()
-        response = client.post("/api/generate", json={"review_count": 200})
+        response = client.post("/generate", json={"review_count": 200})
         assert response.status_code == 200
         data = response.json()
         assert "pulse_id" in data
@@ -74,27 +74,27 @@ class TestGenerateEndpoint:
 
     @patch("module_e.api.run_pipeline")
     def test_generate_invalid_count_returns_400(self, mock_pipeline):
-        """POST /api/generate with invalid count returns 400."""
+        """POST /generate with invalid count returns 400."""
         mock_pipeline.side_effect = ValueError("review_count must be one of [200, 300, 400]")
-        response = client.post("/api/generate", json={"review_count": 999})
+        response = client.post("/generate", json={"review_count": 999})
         assert response.status_code == 400
 
 
 class TestGetPulseEndpoint:
 
     def test_get_pulse_not_found(self):
-        """GET /api/pulse/{id} for unknown ID returns 404."""
-        response = client.get("/api/pulse/nonexistent_id")
+        """GET /pulse/{id} for unknown ID returns 404."""
+        response = client.get("/pulse/nonexistent_id")
         assert response.status_code == 404
 
     @patch("module_e.api.run_pipeline")
     def test_get_pulse_after_generate(self, mock_pipeline):
-        """GET /api/pulse/{id} returns the correct pulse after generation."""
+        """GET /pulse/{id} returns the correct pulse after generation."""
         mock_pipeline.return_value = _make_pulse()
-        gen_response = client.post("/api/generate", json={"review_count": 200})
+        gen_response = client.post("/generate", json={"review_count": 200})
         pulse_id = gen_response.json()["pulse_id"]
 
-        response = client.get(f"/api/pulse/{pulse_id}")
+        response = client.get(f"/pulse/{pulse_id}")
         assert response.status_code == 200
         assert response.json()["pulse"]["metadata"]["review_count"] == 200
 
@@ -104,41 +104,41 @@ class TestExportEndpoints:
     @patch("module_e.api.export_pdf")
     @patch("module_e.api.run_pipeline")
     def test_export_pdf_endpoint(self, mock_pipeline, mock_pdf):
-        """POST /api/export/pdf generates PDF and saves to history."""
+        """POST /export/pdf generates PDF and saves to history."""
         mock_pipeline.return_value = _make_pulse()
         mock_pdf.return_value = {"success": True, "pdf_path": "exports/test.pdf"}
 
-        gen_resp = client.post("/api/generate", json={"review_count": 200})
+        gen_resp = client.post("/generate", json={"review_count": 200})
         pulse_id = gen_resp.json()["pulse_id"]
 
-        response = client.post("/api/export/pdf", json={"pulse_id": pulse_id})
+        response = client.post("/export/pdf", json={"pulse_id": pulse_id})
         assert response.status_code == 200
         assert response.json()["success"] is True
 
     @patch("module_e.api.run_pipeline")
     def test_email_max_recipients_rejected(self, mock_pipeline):
-        """POST /api/export/email with >5 recipients returns 400."""
+        """POST /export/email with >5 recipients returns 400."""
         mock_pipeline.return_value = _make_pulse()
-        gen_resp = client.post("/api/generate", json={"review_count": 200})
+        gen_resp = client.post("/generate", json={"review_count": 200})
         pulse_id = gen_resp.json()["pulse_id"]
 
-        response = client.post("/api/export/email", json={
+        response = client.post("/export/email", json={
             "pulse_id": pulse_id,
             "recipients": ["a@b.com"] * 6,
         })
         assert response.status_code == 400
 
     def test_export_pdf_pulse_not_found(self):
-        """POST /api/export/pdf for unknown pulse returns 404."""
-        response = client.post("/api/export/pdf", json={"pulse_id": "fake_id"})
+        """POST /export/pdf for unknown pulse returns 404."""
+        response = client.post("/export/pdf", json={"pulse_id": "fake_id"})
         assert response.status_code == 404
 
 
 class TestHistoryEndpoints:
 
     def test_history_empty(self):
-        """GET /api/history on clean DB returns empty list."""
-        response = client.get("/api/history")
+        """GET /history on clean DB returns empty list."""
+        response = client.get("/history")
         assert response.status_code == 200
         assert response.json() == []
 
@@ -147,9 +147,9 @@ class TestHistoryEndpoints:
         """Immediately after generating, history returns the saved report."""
         mock_pipeline.return_value = _make_pulse()
 
-        client.post("/api/generate", json={"review_count": 200})
+        client.post("/generate", json={"review_count": 200})
 
-        response = client.get("/api/history")
+        response = client.get("/history")
         assert response.status_code == 200
         history = response.json()
         assert len(history) >= 1
@@ -163,22 +163,22 @@ class TestHistoryEndpoints:
         mock_pipeline.return_value = _make_pulse()
         mock_pdf.return_value = {"success": True, "pdf_path": "exports/test.pdf"}
 
-        gen_resp = client.post("/api/generate", json={"review_count": 200})
+        gen_resp = client.post("/generate", json={"review_count": 200})
         pulse_id = gen_resp.json()["pulse_id"]
         
-        client.post("/api/export/pdf", json={"pulse_id": pulse_id})
+        client.post("/export/pdf", json={"pulse_id": pulse_id})
 
-        response = client.get("/api/history")
+        response = client.get("/history")
         history = response.json()
         assert history[0]["pdf_path"] == "exports/test.pdf"
 
     @patch("module_e.api.run_pipeline")
     def test_get_history_report_rehydrates_store(self, mock_pipeline):
-        """GET /api/history/{id} re-hydrates the _pulse_store."""
+        """GET /history/{id} re-hydrates the _pulse_store."""
         mock_pipeline.return_value = _make_pulse()
-        client.post("/api/generate", json={"review_count": 200})
+        client.post("/generate", json={"review_count": 200})
         
-        history = client.get("/api/history").json()
+        history = client.get("/history").json()
         report_id = history[0]["id"]
 
         # Clear the memory store to simulate a server restart
@@ -186,7 +186,7 @@ class TestHistoryEndpoints:
         assert len(_pulse_store) == 0
 
         # Fetch the past report
-        resp = client.get(f"/api/history/{report_id}")
+        resp = client.get(f"/history/{report_id}")
         assert resp.status_code == 200
         
         # Verify store is re-hydrated

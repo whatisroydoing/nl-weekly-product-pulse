@@ -72,7 +72,16 @@ The project relies on API keys and credentials.
 
 ## 🚀 Step 3: Running the Application
 
-You need **two separate terminal windows** running at the same time.
+### Option A: The "One-Click" Way (Recommended for Windows)
+
+Double-click **`start_local.bat`** in the root directory. This will:
+1.  Check for your `.env` file.
+2.  Start the **Backend (FastAPI)** in a new window.
+3.  Start the **Frontend (Vite)** in your current window.
+
+### Option B: The Manual Way (Two Terminal Windows)
+
+You need two separate terminal windows running at the same time.
 
 ### Terminal 1: The Backend (FastAPI)
 This handles the logic, AI, and database.
@@ -85,7 +94,7 @@ uvicorn module_e.api:app --reload
 ### Terminal 2: The Frontend (React/Vite)
 This provides the visual interface.
 ```bash
-cd module_e.api:frontend
+cd module_e/frontend
 npm run dev
 ```
 *Your app is now at http://localhost:5173*

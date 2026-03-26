@@ -31,8 +31,13 @@ jobs:
       env:
         PYTHONPATH: ${{ github.workspace }}
         OPENAI_API_KEY: "sk-fake-key"
-        GMAIL_APP_PASSWORD: "fake-password"
+        EMAIL_MODE: "API"
+        GMAIL_API_AUTH_MODE: "OAUTH2"
         GMAIL_USER: "test@gmail.com"
+        GMAIL_CLIENT_ID: "fake-client-id"
+        GMAIL_CLIENT_SECRET: "fake-client-secret"
+        GMAIL_REFRESH_TOKEN: "fake-refresh-token"
+        GMAIL_APP_PASSWORD: "fake-password"
         GOOGLE_DOC_ID: "fake-doc-id"
         GOOGLE_SERVICE_ACCOUNT_JSON: "fake-key.json"
       run: |

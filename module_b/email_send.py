@@ -7,6 +7,8 @@ Optionally attaches the PDF if a path is provided.
 import os
 import smtplib
 import ssl
+import logging
+import base64
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
@@ -15,9 +17,15 @@ from pathlib import Path
 from datetime import datetime
 
 from dotenv import load_dotenv
+from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
+
 from models.schemas import PulsePayload
 
-load_dotenv()
+load_dotenv(override=True)
+logger = logging.getLogger(__name__)
 
 
 def _build_html(pulse: PulsePayload) -> str:
@@ -128,6 +136,76 @@ def _build_html(pulse: PulsePayload) -> str:
 </html>
 """
 
+def _get_gmail_service():
+    """Helper to build the Gmail API service using OAuth2 or Service Account."""
+    mode = os.environ.get("GMAIL_API_AUTH_MODE", "SERVICE_ACCOUNT").upper()
+    
+    if mode == "OAUTH2":
+        # Personal Account via Refresh Token (Best for @gmail.com)
+        creds = Credentials(
+            token=None,
+            refresh_token=os.environ.get("GMAIL_REFRESH_TOKEN"),
+            token_uri="https://oauth2.googleapis.com/token",
+            client_id=os.environ.get("GMAIL_CLIENT_ID"),
+            client_secret=os.environ.get("GMAIL_CLIENT_SECRET"),
+            scopes=["https://www.googleapis.com/auth/gmail.send"]
+        )
+        if not creds.refresh_token:
+            logger.error("GMAIL_REFRESH_TOKEN is missing for OAUTH2 mode.")
+            return None
+        creds.refresh(Request())
+        return build("gmail", "v1", credentials=creds)
+    
+    else:
+        # Service Account with Domain-Wide Delegation (Workspace only)
+        sa_json = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON")
+        delegate_user = os.environ.get("GMAIL_DELEGATE_USER")
+        
+        if not sa_json or not delegate_user:
+            logger.error("GOOGLE_SERVICE_ACCOUNT_JSON or GMAIL_DELEGATE_USER missing for SERVICE_ACCOUNT mode.")
+            return None
+            
+        scopes = ["https://www.googleapis.com/auth/gmail.send"]
+        
+        try:
+            import json
+            # Robust check for sa_json
+            sa_json_clean = (sa_json or "").strip()
+            if not sa_json_clean:
+                logger.error("GOOGLE_SERVICE_ACCOUNT_JSON is empty for SERVICE_ACCOUNT mode.")
+                return None
+                
+            if sa_json_clean.startswith("{"):
+                info = json.loads(sa_json_clean)
+                creds = service_account.Credentials.from_service_account_info(
+                    info, scopes=scopes
+                ).with_subject(delegate_user)
+            else:
+                creds = service_account.Credentials.from_service_account_file(
+                    sa_json_clean, scopes=scopes
+                ).with_subject(delegate_user)
+                
+            return build("gmail", "v1", credentials=creds)
+        except Exception as e:
+            logger.error(f"Failed to build Gmail service with Service Account: {e}")
+            return None
+
+def send_email_via_api(msg: MIMEMultipart, recipients: list) -> dict:
+    """Send email using GMAIL API."""
+    try:
+        service = _get_gmail_service()
+        if not service:
+            return {"success": False, "error": "Could not initialize Gmail API service. Check settings."}
+            
+        raw_message = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+        create_message = {'raw': raw_message}
+        
+        service.users().messages().send(userId="me", body=create_message).execute()
+        return {"success": True}
+    except Exception as e:
+        logger.error(f"Gmail API send failed: {e}")
+        return {"success": False, "error": f"Gmail API Error: {str(e)}"}
+
 
 def send_email(
     pulse: PulsePayload,
@@ -158,9 +236,14 @@ def send_email(
 
     gmail_user     = os.environ.get("GMAIL_USER", "")
     gmail_password = os.environ.get("GMAIL_APP_PASSWORD", "")
+    email_mode     = os.environ.get("EMAIL_MODE", "API").upper()
 
-    if not gmail_user or not gmail_password:
-        return {"success": False, "error": "GMAIL_USER or GMAIL_APP_PASSWORD not set in .env."}
+    if not gmail_user:
+        return {"success": False, "error": "GMAIL_USER not set in .env."}
+    
+    # Only require APP_PASSWORD if using SMTP
+    if email_mode != "API" and not gmail_password:
+        return {"success": False, "error": "GMAIL_APP_PASSWORD not set in .env (Required for SMTP mode)."}
 
     app_name = pulse.metadata.get("app_name", "IndMoney")
     date_str = pulse.metadata.get("generated_at", datetime.now().strftime("%d-%b-%Y"))
@@ -194,14 +277,28 @@ def send_email(
         )
         msg.attach(part)
 
-    # Send via Gmail SMTP TLS
+    # Trigger switch between SMTP and API (default: API for Railway compatibility)
+    mode = os.environ.get("EMAIL_MODE", "API").upper()
+    
+    if mode == "API":
+        return send_email_via_api(msg, recipients)
+
+    # Fallback to SMTP
+    smtp_host = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+    smtp_port = int(os.environ.get("SMTP_PORT", "587"))
+
     try:
         context = ssl.create_default_context()
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.ehlo()
-            server.starttls(context=context)
-            server.login(gmail_user, gmail_password)
-            server.sendmail(gmail_user, recipients, msg.as_string())
+        if smtp_port == 465:
+            with smtplib.SMTP_SSL(smtp_host, smtp_port, context=context) as server:
+                server.login(gmail_user, gmail_password)
+                server.sendmail(gmail_user, recipients, msg.as_string())
+        else:
+            with smtplib.SMTP(smtp_host, smtp_port) as server:
+                server.ehlo()
+                server.starttls(context=context)
+                server.login(gmail_user, gmail_password)
+                server.sendmail(gmail_user, recipients, msg.as_string())
         return {"success": True}
     except Exception as e:
-        return {"success": False, "error": str(e)}
+        return {"success": False, "error": f"SMTP Error: {str(e)} (Ensure GMAIL_APP_PASSWORD is correct or switch to EMAIL_MODE=API)"}

@@ -1,16 +1,24 @@
-# Environment
+# Environment & Secrets
 .env
-__pycache__/
-*.db
-*.json
-!package.json
-!package-lock.json
-!tsconfig.json
-!config.json
-!mockData.json
-!google-service-account.json-example
-# ... actually I'll just be specific
 docs/google-service-account.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Database
+*.db
+
+# Virtual environment
+venv/
+.venv/
+
+# Node (frontend)
+module_e/frontend/node_modules/
+module_e/frontend/.next/
+module_e/frontend/dist/
 
 # IDE
 .vscode/
@@ -20,19 +28,17 @@ docs/google-service-account.json
 Thumbs.db
 .DS_Store
 
-# Virtual environment
-venv/
-.venv/
-
-# Node (frontend)
-module_e/frontend/node_modules/
-module_e/frontend/.next/
-
 # Testing & Cache
 .pytest_cache/
 .coverage
 htmlcov/
 
-# Local Data
+# Local Data & Exports
 data/
+exports/
+
+# Local-only files
 docs/session_handoff.md
+start_debug.bat
+start_local.bat
+get_gmail_token.py

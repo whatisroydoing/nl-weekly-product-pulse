@@ -6,6 +6,7 @@ at the bottom of a specified Google Doc.
 
 import os
 import logging
+from datetime import datetime, timezone, timedelta
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from dotenv import load_dotenv
@@ -83,7 +84,10 @@ def append_to_doc(pulse: PulsePayload, fee_explainer: FeeExplainerResult = None)
 
         # Add Titles and Content
         add_text("IndMoney Weekly Product Pulse\n", "HEADING_1")
-        add_text(f"Date: {date_str}\n\n")
+        add_text(f"Date: {date_str}\n")
+        IST = timezone(timedelta(hours=5, minutes=30))
+        ist_now = datetime.now(IST)
+        add_text(f"Last updated on {ist_now.strftime('%H:%M')} in IST\n\n")
         
         add_text("Summary\n", "HEADING_2")
         add_text(f"{pulse_text}\n\n")

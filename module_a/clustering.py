@@ -56,8 +56,12 @@ def cluster_themes(raw_reviews: list[RawReview]) -> ThemedAnalysis:
     temperature = config["llm"]["clustering"].get("temperature", 0.2)
 
     # Standard OpenAI API
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY is not set in environment variables.")
+
     client = OpenAI(
-        api_key=os.environ["OPENAI_API_KEY"],
+        api_key=api_key,
     )
 
     system_prompt = _load_prompt()
@@ -94,18 +98,19 @@ def cluster_themes(raw_reviews: list[RawReview]) -> ThemedAnalysis:
 
                 # Aggregate themes
                 for t in data.get("themes", []):
-                    label = t["label"].strip()
+                    label = t.get("label", "Unknown").strip()
+                    description = t.get("description", "No description available")
                     # Keep the longest description available
-                    if len(t["description"]) > len(all_themes[label]["description"]):
-                        all_themes[label]["description"] = t["description"]
-                    all_themes[label]["review_count"] += t["review_count"]
+                    if len(description) > len(all_themes[label]["description"]):
+                        all_themes[label]["description"] = description
+                    all_themes[label]["review_count"] += t.get("review_count", 0)
 
                 # Collect quotes
                 for q in data.get("quotes", []):
                     all_quotes.append(
                         Quote(
-                            text=q["text"],
-                            theme_label=q["theme_label"].strip(),
+                            text=q.get("text", "Missing quote text"),
+                            theme_label=q.get("theme_label", "Unknown").strip(),
                             rating=q.get("rating", 0),
                         )
                     )

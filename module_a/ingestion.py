@@ -7,7 +7,11 @@ from langdetect import detect
 
 def load_config():
     """Load configuration from config.yaml."""
-    with open("config.yaml", "r") as f:
+    config_path = Path("config.yaml")
+    if not config_path.exists():
+        # Return minimal default config if file is missing
+        return {"app": {"app_id": "com.indmoney", "name": "IndMoney", "source": "Google Play Store"}, "ingestion": {"min_words_per_review": 5, "allowed_review_counts": [100, 200, 300, 400]}}
+    with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
 

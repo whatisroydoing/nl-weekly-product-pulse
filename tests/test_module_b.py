@@ -79,12 +79,17 @@ class TestEmailSend:
             assert result["success"] is False
             assert "not set" in result["error"]
 
-    @patch("module_b.email_send.smtplib.SMTP")
-    def test_email_sends_with_valid_config(self, mock_smtp, mock_pulse):
-        mock_server = MagicMock()
-        mock_smtp.return_value.__enter__ = MagicMock(return_value=mock_server)
-        mock_smtp.return_value.__exit__ = MagicMock(return_value=False)
+    @patch("module_b.email_send._get_gmail_service")
+    def test_email_sends_with_valid_config(self, mock_get_service, mock_pulse):
+        """Email sends successfully via Gmail API (default mode)."""
+        mock_service = MagicMock()
+        mock_service.users().messages().send().execute.return_value = {"id": "fake_msg_id"}
+        mock_get_service.return_value = mock_service
 
-        with patch.dict(os.environ, {"GMAIL_USER": "test@gmail.com", "GMAIL_APP_PASSWORD": "testpass"}):
+        with patch.dict(os.environ, {
+            "GMAIL_USER": "test@gmail.com",
+            "GMAIL_APP_PASSWORD": "testpass",
+            "EMAIL_MODE": "API",
+        }):
             result = send_email(mock_pulse, recipients=["user@example.com"])
             assert result["success"] is True

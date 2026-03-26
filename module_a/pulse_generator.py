@@ -7,7 +7,7 @@ Single API call for token optimization.
 import json
 import os
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -20,6 +20,9 @@ load_dotenv()
 def _load_prompt() -> str:
     """Load the pulse generation system prompt."""
     prompt_path = Path(__file__).parent / "prompts" / "pulse.txt"
+    if not prompt_path.exists():
+        # Fallback default prompt if file is missing
+        return "You are a product analyst. Generate a summary and action items from the provided themes and quotes."
     return prompt_path.read_text(encoding="utf-8")
 
 
@@ -56,8 +59,12 @@ def generate_pulse(
         Complete PulsePayload ready for approval review.
     """
     # Standard OpenAI API
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY is not set in environment variables.")
+
     client = OpenAI(
-        api_key=os.environ["OPENAI_API_KEY"],
+        api_key=api_key,
     )
 
     system_prompt = _load_prompt()
@@ -93,18 +100,20 @@ def generate_pulse(
                 print(f"  - Error in pulse generator: {e}")
                 raise e
 
-    now = datetime.now()
+    IST = timezone(timedelta(hours=5, minutes=30))
+    now = datetime.now(IST)
     generated_at = now.strftime("%d-%b-%Y %H:%M")
     footer = f"Report generated on {generated_at} for {source.lower()}"
 
     action_items = []
     for item in data.get("action_items", []):
+        # Defensive parsing in case LLM misses a field
         action_items.append(
             ActionItem(
-                id=item["id"],
-                title=item["title"],
-                description=item["description"],
-                linked_theme=item["linked_theme"],
+                id=item.get("id", 0),
+                title=item.get("title", "No Title"),
+                description=item.get("description", "No Description"),
+                linked_theme=item.get("linked_theme", "None"),
             )
         )
 

@@ -58,6 +58,28 @@ class EmailRequest(BaseModel):
     recipients: list[str]  # Max 5
 
 
+def _rehydrate_pulse(pulse_id: str):
+    """
+    If pulse_id is missing from _pulse_store, try to find it in the database 
+    and re-populate the store. This handles server reloads gracefully.
+    """
+    if pulse_id in _pulse_store:
+        return _pulse_store[pulse_id]
+    
+    # Search DB for a report where the generated_at matches the pulse_id format
+    history = get_history()
+    for item in history:
+        item_pulse_id = item.get("generated_at", "").replace(" ", "_").replace(":", "-")
+        if item_pulse_id == pulse_id:
+            # Found a match, lead full report and rehydrate
+            pulse = get_report(item["id"])
+            if pulse:
+                _pulse_store[pulse_id] = {"gate": ApprovalGate(pulse), "db_id": item["id"]}
+                return _pulse_store[pulse_id]
+                
+    return None
+
+
 # --- Endpoints ---
 
 @app.post("/generate")
@@ -87,7 +109,7 @@ def generate_report(request: GenerateRequest):
 @app.get("/pulse/{pulse_id}")
 def get_pulse(pulse_id: str):
     """Get a pulse payload by its ID."""
-    record = _pulse_store.get(pulse_id)
+    record = _rehydrate_pulse(pulse_id)
     if not record:
         raise HTTPException(status_code=404, detail="Pulse not found")
     return {"pulse_id": pulse_id, "pulse": record["gate"].pulse.model_dump()}
@@ -99,7 +121,7 @@ def export_pdf_endpoint(request: ExportPDFRequest):
     Export pulse as PDF -- implicitly approves the pulse.
     Returns the PDF file path and saves to history.
     """
-    record = _pulse_store.get(request.pulse_id)
+    record = _rehydrate_pulse(request.pulse_id)
     if not record:
         raise HTTPException(status_code=404, detail="Pulse not found")
 
@@ -123,7 +145,7 @@ def export_pdf_endpoint(request: ExportPDFRequest):
 @app.get("/download/pdf/{pulse_id}")
 def download_pdf(pulse_id: str):
     """Download the generated PDF file directly."""
-    record = _pulse_store.get(pulse_id)
+    record = _rehydrate_pulse(pulse_id)
     if not record:
         raise HTTPException(status_code=404, detail="Pulse not found")
 
@@ -147,7 +169,7 @@ def send_email_endpoint(request: EmailRequest):
     Send pulse via email -- implicitly approves the pulse.
     Attaches the PDF if available.
     """
-    record = _pulse_store.get(request.pulse_id)
+    record = _rehydrate_pulse(request.pulse_id)
     if not record:
         raise HTTPException(status_code=404, detail="Pulse not found")
 

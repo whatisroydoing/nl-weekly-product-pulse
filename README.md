@@ -33,6 +33,16 @@ For a detailed, step-by-step guide on setting up the project from scratch, see:
 
 ---
 
+## One-Click Start (Windows)
+
+A batch script is provided to start both the backend and frontend simultaneously:
+
+1.  Double-click **`start_local.bat`** in the project root.
+2.  Wait for the backend (FastAPI) and frontend (Vite) to initialize.
+3.  The app will be available at **http://localhost:5173**.
+
+---
+
 ## CLI Usage (Alternative)
 
 ## API Server
