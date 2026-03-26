@@ -9,6 +9,8 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+import os
+import logging
 from module_a.pipeline import run_pipeline
 from module_b.pdf_export import export_pdf
 from module_b.email_send import send_email
@@ -18,6 +20,8 @@ from module_d.history import save_report, get_history, get_report, update_pdf_pa
 from module_f.fee_scraper import get_fee_data
 from module_f.fee_explainer import generate_fee_explanation
 from module_f.google_doc_writer import append_to_doc
+
+logger = logging.getLogger(__name__)
 
 
 app = FastAPI(
@@ -186,7 +190,11 @@ def send_email_endpoint(request: EmailRequest):
 
     # B1: Generate PDF first (to attach)
     pdf_result = export_pdf(gate.pulse)
-    pdf_path = pdf_result.get("pdf_path", "") if pdf_result.get("success") else ""
+    pdf_path = ""
+    if pdf_result.get("success"):
+        pdf_path = pdf_result.get("pdf_path", "")
+    else:
+        logger.error(f"PDF Generation failed: {pdf_result.get('error')}")
 
     # F: Generate Fee Explainer details
     fee_explainer = None

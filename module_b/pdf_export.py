@@ -6,6 +6,7 @@ Renders a PulsePayload into a clean, branded, multi-page PDF.
 import os
 from pathlib import Path
 from datetime import datetime
+from xml.sax.saxutils import escape as xml_escape
 
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
@@ -224,9 +225,10 @@ def _build_quotes_section(pulse: PulsePayload, s: dict) -> list:
         block.append(Paragraph(f"● {theme_label}", s["quote_theme"]))
         for q in quotes[:3]:  # Max 3 per theme
             stars = "★" * q.rating + "☆" * (5 - q.rating)
-            block.append(Paragraph(f"❝ {q.text}", s["quote_text"]))
+            text = xml_escape(q.text)
+            block.append(Paragraph(f"❝ {text}", s["quote_text"]))
             block.append(Paragraph(f"{stars}  (Rating: {q.rating}/5)", s["quote_rating"]))
-        elements.append(KeepTogether(block))
+        elements.extend(block)
 
     return elements
 
@@ -238,11 +240,11 @@ def _build_actions_section(pulse: PulsePayload, s: dict) -> list:
 
     for item in pulse.action_items:
         block = [
-            Paragraph(f"[{item.id}]  {item.title}", s["action_title"]),
-            Paragraph(item.description, s["action_desc"]),
-            Paragraph(f"Linked theme: {item.linked_theme}", s["action_linked"]),
+            Paragraph(f"[{item.id}]  {xml_escape(item.title)}", s["action_title"]),
+            Paragraph(xml_escape(item.description), s["action_desc"]),
+            Paragraph(f"Linked theme: {xml_escape(item.linked_theme)}", s["action_linked"]),
         ]
-        elements.append(KeepTogether(block))
+        elements.extend(block)
 
     return elements
 
@@ -287,7 +289,7 @@ def export_pdf(pulse: PulsePayload, output_dir: str = "exports") -> dict:
         story.append(Paragraph("Summary", s["section_header"]))
         for para in str(pulse.summary_note).split("\n"):
             if para.strip():
-                story.append(Paragraph(para.strip(), s["body"]))
+                story.append(Paragraph(xml_escape(para.strip()), s["body"]))
 
         # ── Themes table ─────────────────────────────────────────────────
         story.append(Paragraph("Themes", s["section_header"]))
